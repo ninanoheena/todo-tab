@@ -38,12 +38,33 @@
       this.onChange();
 
       if (!SB || !this.url || !this.key) return;
-      const authOpts = { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false };
+      const authOpts = {
+        persistSession: true, autoRefreshToken: true, detectSessionInUrl: false,
+        // iOS 홈 화면 앱에서 navigator.locks가 멈추는 문제 회피: 잠금 없이 바로 실행
+        lock: async (_name, _timeout, fn) => fn(),
+      };
       if (this.authStorage) authOpts.storage = this.authStorage;
       this.client = SB.createClient(this.url, this.key, { auth: authOpts });
 
-      const { data: s } = await this.client.auth.getSession();
-      this.session = s ? s.session : null;
+      // 세션 복구: SDK 저장소가 비어 있으면 우리가 따로 보관한 토큰으로 되살림
+      const BK = 'todotab.session';
+      const storage = this.authStorage || (typeof localStorage !== 'undefined' ? localStorage : null);
+      const backup = (sess) => { try { if (!storage) return; if (sess) storage.setItem(BK, JSON.stringify({ a: sess.access_token, r: sess.refresh_token })); else storage.removeItem(BK); } catch (e) {} };
+      let got = null;
+      try { got = (await this.client.auth.getSession()).data.session; } catch (e) { got = null; }
+      if (!got && storage) {
+        try {
+          const raw = storage.getItem(BK);
+          if (raw) {
+            const { a, r } = JSON.parse(raw);
+            const { data } = await this.client.auth.setSession({ access_token: a, refresh_token: r });
+            got = data ? data.session : null;
+          }
+        } catch (e) { got = null; }
+      }
+      this.session = got;
+      backup(this.session);
+      this.client.auth.onAuthStateChange((_evt, session) => backup(session));
       this.onAuth(this.session);
       this.client.auth.onAuthStateChange((_evt, session) => {
         const had = !!this.session;
