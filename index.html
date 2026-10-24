@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>할 일</title>
+<meta name="theme-color" content="#F4EFE6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="할 일">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 로그인 -->
+  <section id="login" class="login" hidden>
+    <div class="login-card">
+      <div class="logo" aria-hidden="true"></div>
+      <h1>할 일</h1>
+      <p class="muted">PC 앱과 같은 계정으로 로그인하면 서로 연동돼요.</p>
+      <form id="login-form" autocomplete="on">
+        <label for="email">이메일</label>
+        <input id="email" type="email" autocomplete="username" required>
+        <label for="password">비밀번호</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+        <button type="submit" id="login-btn">로그인</button>
+        <div id="login-error" class="error" role="alert"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- 메인 -->
+  <main id="app" hidden>
+    <header class="head">
+      <div class="head-text">
+        <span id="date-label" class="date"></span>
+        <h1>오늘 할 일</h1>
+      </div>
+      <span id="count-pill" class="pill">0 남음</span>
+    </header>
+
+    <div id="today-list" class="list"></div>
+    <div id="today-empty" class="empty" hidden>오늘 할 일이 없어요</div>
+
+    <div id="done-wrap" hidden>
+      <div class="divider"><span>완료</span><i></i></div>
+      <div id="done-list" class="list"></div>
+    </div>
+
+    <section class="upcoming">
+      <div class="up-head">
+        <h2>해야 할 일</h2>
+        <span id="up-count" class="muted">0건</span>
+      </div>
+      <div id="upcoming-list" class="list"></div>
+      <div id="upcoming-empty" class="empty" hidden>마감일을 넣어 추가하면 여기에 쌓여요</div>
+    </section>
+
+    <footer class="foot">
+      <span id="sync-status" class="status"><i></i><span>동기화 중…</span></span>
+      <button type="button" id="logout-btn" class="link-btn">로그아웃</button>
+    </footer>
+  </main>
+
+  <!-- 입력 (하단 고정) -->
+  <form id="add-form" class="add" autocomplete="off" hidden>
+    <div class="row">
+      <label for="new-todo" class="sr-only">새 할 일</label>
+      <input id="new-todo" type="text" placeholder="할 일 추가…" maxlength="120" enterkeyhint="done">
+      <button type="submit" id="add-btn" aria-label="추가">+</button>
+    </div>
+    <div class="row due-row">
+      <label for="new-due">마감일</label>
+      <input id="new-due" type="date">
+      <span id="due-hint" class="hint">비우면 오늘 할 일로</span>
+    </div>
+  </form>
+
+  <script src="vendor/supabase.js"></script>
+  <script src="core.js"></script>
+  <script src="sync.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
